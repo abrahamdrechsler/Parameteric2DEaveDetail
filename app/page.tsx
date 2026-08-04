@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 
 type StructureType = "rafter" | "raisedHeelTruss" | "cantileveredRaisedHeelTruss" | "commonTruss";
 
@@ -23,6 +24,10 @@ type SliderProps = {
   step: number;
   unit: string;
   onChange: (value: number) => void;
+};
+
+type ControlsPanelProps = {
+  children: ReactNode;
 };
 
 const DEFAULTS: Inputs = {
@@ -96,6 +101,60 @@ function Slider({ label, value, min, max, step, unit, onChange }: SliderProps) {
       />
       <span className="range-labels" aria-hidden="true"><span>{min}</span><span>{max}</span></span>
     </label>
+  );
+}
+
+function ControlsPanel({ children }: ControlsPanelProps) {
+  const panelRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useLayoutEffect(() => {
+    const updateScale = (): void => {
+      const panel = panelRef.current;
+      const content = contentRef.current;
+      if (panel === null || content === null) {
+        return;
+      }
+
+      if (window.matchMedia("(max-width: 900px)").matches) {
+        setScale(1);
+        return;
+      }
+
+      const panelStyle = window.getComputedStyle(panel);
+      const verticalPadding = Number.parseFloat(panelStyle.paddingTop) + Number.parseFloat(panelStyle.paddingBottom);
+      const availableHeight = Math.max(1, panel.clientHeight - verticalPadding);
+      const nextScale = Math.min(1, availableHeight / content.scrollHeight);
+      setScale((currentScale) => Math.abs(currentScale - nextScale) < 0.002 ? currentScale : nextScale);
+    };
+
+    updateScale();
+    const observer = new ResizeObserver(updateScale);
+    if (panelRef.current !== null) {
+      observer.observe(panelRef.current);
+    }
+    if (contentRef.current !== null) {
+      observer.observe(contentRef.current);
+    }
+    window.addEventListener("resize", updateScale);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateScale);
+    };
+  }, []);
+
+  return (
+    <aside className="controls-panel" ref={panelRef}>
+      <div
+        className="controls-content"
+        ref={contentRef}
+        style={{ transform: `scale(${scale})`, width: `${100 / scale}%` }}
+      >
+        {children}
+      </div>
+    </aside>
   );
 }
 
@@ -516,7 +575,7 @@ export default function Home() {
           </div>
         </div>
 
-        <aside className="controls-panel">
+        <ControlsPanel>
           <div className="controls-heading">
             <div><p className="kicker">Authoring inputs</p><h2>{isRafter ? "Rafter constraints" : "Truss constraints"}</h2></div>
             <button type="button" onClick={() => setInputs(DEFAULTS)}>Reset</button>
@@ -573,7 +632,7 @@ export default function Home() {
           </div>
 
           <div className="solver-note"><span className="note-icon">i</span><p><strong>Mutually exclusive type</strong> Each selection replaces the active constraint graph. Inputs appear only where the technical guideline assigns them as constraints or independent values.</p></div>
-        </aside>
+        </ControlsPanel>
       </section>
 
       <footer>

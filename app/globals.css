@@ -37,7 +37,8 @@ h2 { margin-bottom: 0; font-size: 17px; font-weight: 590; letter-spacing: -.02em
 .result-strip strong { font-family: var(--font-geist-mono), monospace; font-size: 15px; font-weight: 540; }
 .result-strip small { color: var(--red); font-size: 9px; }
 
-.controls-panel { min-height: 0; padding: 22px; background: #faf8f3; overflow-y: auto; overscroll-behavior: contain; }
+.controls-panel { min-height: 0; padding: 22px; background: #faf8f3; overflow: hidden; }
+.controls-content { width: 100%; transform-origin: top left; }
 .controls-heading button { padding: 7px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: #5f574e; cursor: pointer; font-size: 11px; }
 .controls-heading button:hover { border-color: #aaa196; }
 .controls-heading button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
@@ -76,6 +77,7 @@ footer a:hover { color: var(--red); }
   .drawing-panel { grid-template-rows: auto minmax(440px,1fr) auto; border-right: 0; border-bottom: 1px solid var(--line); }
   .eave-canvas { min-height: 430px; }
   .controls-panel { overflow: visible; }
+  .controls-content { width: 100% !important; transform: none !important; }
 }
 
 @media (min-width: 901px) and (max-height: 760px) {
@@ -86,6 +88,12 @@ footer a:hover { color: var(--red); }
   .panel-heading .kicker, .controls-heading .kicker { margin-bottom: 2px; }
   .canvas-frame { padding-top: 6px; }
   .result-strip > div { padding-top: 10px; }
+  .structure-switch { margin-top: 12px; }
+  .control-section { margin-top: 12px; padding-top: 8px; }
+  .section-label { margin-bottom: 10px; }
+  .control { margin-bottom: 12px; }
+  .control-heading { margin-bottom: 5px; }
+  .solver-note { display: none; }
 }
 
 @media (max-width: 620px) {
